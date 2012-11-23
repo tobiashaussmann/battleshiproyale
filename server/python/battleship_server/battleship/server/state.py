@@ -5,3 +5,6 @@ USERS = {
 
 CONTACT_REQUESTS = {
 }
+
+GAMES = {
+}

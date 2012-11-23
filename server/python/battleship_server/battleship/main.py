@@ -11,7 +11,7 @@ class BattleshipServer(Resource):
     isLeaf = True
     def __init__(self):
         # throttle in seconds to check app for new data
-        self.throttle = 1
+        self.throttle = 0.1
         # define a list to store client requests
         self.delayed_requests = []
         # setup a loop to process delayed requests

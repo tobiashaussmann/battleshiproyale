@@ -16,7 +16,7 @@ class PingAction(BaseAction):
         """
         userid = request_util.get_param(self.request, 'id')
         if not userid:
-            raise Exception("userid required")
+            raise Exception("Param 'id' is required")
         
         username = request_util.get_param(self.request, 'user')
         highscore = request_util.get_param(self.request, 'highscore', 0)
@@ -30,6 +30,8 @@ class PingAction(BaseAction):
             data = self.get_user_list()
             USERS['users'][self.request.user]['updated'] = USERS['update_key']
             data['action'] = 'ping'
+            if init == 'true':
+                USERS['users'][self.request.user]['state'] = ''
         
         # test contact action if any
         contact_action = ContactAction(self.request)
