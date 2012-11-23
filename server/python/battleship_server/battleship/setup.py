@@ -29,7 +29,7 @@ setup(name='battleship_server',
       },
       entry_points = {
           'console_scripts': [
-              'battleship_server = server.main:main',
+              'battleship_server = main:main',
           ],
       },
 )

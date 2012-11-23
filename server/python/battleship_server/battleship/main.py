@@ -56,21 +56,26 @@ class BattleshipServer(Resource):
         """        
         # run through delayed requests
         for request in self.delayed_requests:
-            # attempt to get data again
-            action = get_action(request)
-            if action:
-                data = action.get_data()
-                # write response and remove request from list if data is found
-                if len(data) > 0:
-                    try:
-                        request.write(self.__format_response(request, data))
-                        request.finish()
-                    except:
-                        # Connection was lost
-                        print 'connection lost before complete.'
-                    finally:
-                        # Remove request from list
-                        self.delayed_requests.remove(request)
+            try:
+                # attempt to get data again
+                action = get_action(request)
+                if action:
+                    data = action.get_data()
+                    # write response and remove request from list if data is found
+                    if len(data) > 0:
+                        try:
+                            request.write(self.__format_response(request, data))
+                            request.finish()
+                        except:
+                            # Connection was lost
+                            print 'connection lost before complete.'
+                        finally:
+                            # Remove request from list
+                            self.delayed_requests.remove(request)
+            except Exception, e:
+                print 'exception while handling request - removing request'
+                print str(e)
+                self.delayed_requests.remove(request)
  
     def __format_response(self, request, data):
         """
