@@ -1,5 +1,5 @@
-from battleship.server.util import request as request_util
-from battleship.server.action.ping import PingAction
+from server.util import request as request_util
+from server.action.ping import PingAction
 
 def get_action(request):
     """Returns an action that was required by the request.

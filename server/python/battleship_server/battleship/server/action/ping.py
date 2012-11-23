@@ -1,6 +1,6 @@
-from battleship.server.state import USERS
-from battleship.server.util import request as request_util
-from battleship.server.action.base import BaseAction
+from server.state import USERS
+from server.util import request as request_util
+from server.action.base import BaseAction
 
 class PingAction(BaseAction):
     """Action for a pinging the system and getting the list of 
@@ -22,6 +22,7 @@ class PingAction(BaseAction):
             if lastupdate != USERS['update_key']:
                 data = self.get_user_list()
                 USERS['users'][self.request.user]['updated'] = USERS['update_key']
+                data['action'] = 'ping' 
         return data 
         
     def get_user_list(self):

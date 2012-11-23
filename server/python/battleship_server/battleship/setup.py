@@ -2,7 +2,6 @@
 __author__ = 'Christoph Hauzenberger'
 
 import os
-import server
 from setuptools import setup, find_packages
 
 def read_file(filename):
