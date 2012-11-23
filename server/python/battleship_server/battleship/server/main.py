@@ -1,8 +1,11 @@
+import json
+
 from twisted.web import server
 from twisted.web.server import Site
 from twisted.web.resource import Resource
 from twisted.internet import reactor, task
-import json
+
+from battleship.server.action import get_action
  
 class BattleshipServer(Resource): 
     isLeaf = True
@@ -14,9 +17,6 @@ class BattleshipServer(Resource):
         # setup a loop to process delayed requests
         loopingCall = task.LoopingCall(self.processDelayedRequests)
         loopingCall.start(self.throttle, False)
-        
-        self.users = {}
-        self.update_key = 0
         
         # initialize parent
         Resource.__init__(self)
@@ -35,16 +35,12 @@ class BattleshipServer(Resource):
         if 'callback' in args:
             request.jsonpcallback =  args['callback'][0]
 
-        if 'user' in args:
-            user = args['user'][0]
-            request.lastupdate = self.users.get(user, {}).get('updated', 0)
-            request.user = user
-            self.addUser(user)
-            data = self.getUserList(request,  user)
-        else:
-            data = []
-        if len(data) > 0:
-            return self.__format_response(request, data)
+        # get action and data
+        action = get_action(request)
+        if action:
+            data = action.get_data()
+            if len(data) > 0:
+                return self.__format_response(request, data)
  
         # otherwise, put it in the delayed request list
         self.delayed_requests.append(request)
@@ -52,28 +48,6 @@ class BattleshipServer(Resource):
         # tell the client we're not done yet
         return server.NOT_DONE_YET
     
-    def addUser(self, user):
-        if not user in self.users.keys():
-            self.update_key += 1
-            self.users[user] = {'name':user}
- 
-    def getUserList(self, request, user):
-        """
-        Replace this logic with code that will actually test for
-        and return data your app should return.
- 
-        You can use request.lastupdate here if you want to pull
-        data since the last time this request received data.
- 
-        This is just dummy logic to make this demo work.
-        """
-        # init data
-        data = {}
-        if request.lastupdate != self.update_key:           # you can dynamically add any key/value pair here
-            data = {'users':self.users.values()}
-            self.users[request.user]['updated'] = self.update_key
- 
-        return data
  
     def processDelayedRequests(self):
         """
@@ -83,19 +57,20 @@ class BattleshipServer(Resource):
         # run through delayed requests
         for request in self.delayed_requests:
             # attempt to get data again
-            data = self.getUserList(request, request.user)
- 
-            # write response and remove request from list if data is found
-            if len(data) > 0:
-                try:
-                    request.write(self.__format_response(request, data))
-                    request.finish()
-                except:
-                    # Connection was lost
-                    print 'connection lost before complete.'
-                finally:
-                    # Remove request from list
-                    self.delayed_requests.remove(request)
+            action = get_action(request)
+            if action:
+                data = action.get_data()
+                # write response and remove request from list if data is found
+                if len(data) > 0:
+                    try:
+                        request.write(self.__format_response(request, data))
+                        request.finish()
+                    except:
+                        # Connection was lost
+                        print 'connection lost before complete.'
+                    finally:
+                        # Remove request from list
+                        self.delayed_requests.remove(request)
  
     def __format_response(self, request, data):
         """
