@@ -5,6 +5,7 @@ from twisted.web.server import Site
 from twisted.web.resource import Resource
 from twisted.internet import reactor, task
 
+from server.util.user import user_seen
 from server.action import get_action
  
 class BattleshipServer(Resource): 
@@ -34,15 +35,17 @@ class BattleshipServer(Resource):
         # set jsonp callback handler name if it exists
         if 'callback' in args:
             request.jsonpcallback =  args['callback'][0]
-
+            
         # get action and data
         action = get_action(request)
         if action:
             data = action.get_data()
             if len(data) > 0:
+                user_seen(request)
                 return self.__format_response(request, data)
  
         # otherwise, put it in the delayed request list
+        user_seen(request)
         self.delayed_requests.append(request)
  
         # tell the client we're not done yet
@@ -57,6 +60,9 @@ class BattleshipServer(Resource):
         # run through delayed requests
         for request in self.delayed_requests:
             try:
+                
+                user_seen(request)
+                
                 # attempt to get data again
                 action = get_action(request)
                 if action:

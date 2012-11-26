@@ -15,7 +15,7 @@ class ContactAction(BaseAction):
         # test if there already is a negotiation state between those 2 users
         state = self._get_answer(requesting_user, requested_user)
         if state:
-            if state != STATE_WAITING and state != STATE_ANSWERING:
+            if state == STATE_ACCEPTED or state == STATE_REJECTED:
                 # have final result, returning that
                 if state == STATE_ACCEPTED:
                     self._start_game(requesting_user, requested_user)
