@@ -1,4 +1,3 @@
-from datetime import datetime
 from server.state import USERS
 from server.util import request as request_util
 from server.action.base import BaseAction

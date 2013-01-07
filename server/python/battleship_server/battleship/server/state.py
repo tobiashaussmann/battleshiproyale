@@ -8,3 +8,7 @@ CONTACT_REQUESTS = {
 
 GAMES = {
 }
+
+GARBAGE_COLLECT = {
+    'users': 0
+}

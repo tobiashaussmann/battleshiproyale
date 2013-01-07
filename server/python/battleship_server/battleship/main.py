@@ -38,14 +38,13 @@ class BattleshipServer(Resource):
             
         # get action and data
         action = get_action(request)
-        if action:
-            data = action.get_data()
-            if len(data) > 0:
-                user_seen(request)
-                return self.__format_response(request, data)
+        data = action.get_data()
+        if len(data) > 0:
+            user_seen(request, True)
+            return self.__format_response(request, data)
  
         # otherwise, put it in the delayed request list
-        user_seen(request)
+        user_seen(request, True)
         self.delayed_requests.append(request)
  
         # tell the client we're not done yet
@@ -61,7 +60,7 @@ class BattleshipServer(Resource):
         for request in self.delayed_requests:
             try:
                 
-                user_seen(request)
+                user_seen(request, False)
                 
                 # attempt to get data again
                 action = get_action(request)
